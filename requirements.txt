@@ -1,0 +1,10 @@
+beautifulsoup4==4.12.3
+chardet==5.2.0
+dashscope==1.19.3
+Flask==2.3.2
+flask_mail==0.10.0
+flask_sqlalchemy==3.1.1
+jieba==0.42.1
+pydantic==2.7.4
+Requests==2.32.3
+SQLAlchemy==2.0.30

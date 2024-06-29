@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册表单</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            background-color: #54cae8;
+        }
+
+        .bg-custom {
+            background-color: #ffffff !important; /* 设置背景色为红色 */
+        }
+    </style>
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light bg-custom">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">首页</a>
+    </div>
+</nav>
+<div class="container">
+    <div class="row mt-4">
+        <div class="col"></div>
+        <div class="col">
+            <form id="myForm">
+                <div class="form-group">
+                    <label for="exampleInputEmail1">邮箱</label>
+                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
+                           name="mailbox">
+                </div>
+                <div class="form-group">
+                    <label for="verificationCode">验证码</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="verificationCode" name="verification_code">
+                        <div class="input-group-append">
+                            <button class="btn btn btn-primary" type="button" id="captcha-btn">获取验证码</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="userName">用户名</label>
+                    <input type="text" class="form-control" id="userName" name="user_name">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" class="form-control" id="password" name="password">
+                </div>
+
+                <div class="form-group">
+                    <label for="passwordConfirm">确认密码</label>
+                    <input type="password" class="form-control" id="passwordConfirm" name="password_confirm">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" id="Form-btn">立即注册</button>
+            </form>
+        </div>
+        <div class="col"></div>
+    </div>
+</div>
+<script>
+
+    $(document).ready(function () {
+        $('#captcha-btn').on('click', function () {
+            let $this = $(this);
+            // 可以在这里发送请求到后端获取验证码
+            const email = $('#exampleInputEmail1').val();
+            if (email) {
+                // 邮箱不为空，发送请求到后端获取验证码
+                $.ajax({
+                    type: 'POST',
+                    url: '/mailsend',
+                    data: {email: email},
+                    success: function (response) {
+                        let responseData = JSON.parse(response);
+                        if (responseData.status === "success") {
+                            $this.off("click").attr("disabled", true);
+                            $this.text("已成功发送").removeAttr("disabled");;
+
+
+                        } else {
+                            alert(responseData.message); // 弹出后端返回的错误消息
+                        }
+                    },
+                    error: function (error) {
+                        alert(error); // 处理AJAX请求失败情况
+                    }
+                });
+            } else {
+
+                alert('请输入邮箱地址');
+            }
+        });
+    });
+
+    $(document).ready(function () {
+        // 注册按钮事件
+        $('#myForm').on('submit', function (e) {
+            e.preventDefault();
+
+            // 这里是表单提交的逻辑
+            // 序列化表单数据
+            let mailbox = $('#exampleInputEmail1').val();
+            let verification_code = $('#verificationCode').val();
+            let user_name = $('#userName').val();
+            let password = $('#password').val();
+            let password_confirm = $('#passwordConfirm').val();
+
+            // 使用trim()函数去除字符串两端的空白字符
+            mailbox = mailbox.trim();
+            verification_code = verification_code.trim();
+            user_name = user_name.trim();
+            password = password.trim();
+            password_confirm = password_confirm.trim();
+
+            // 判断数据是否都不为空
+            if (mailbox && verification_code && user_name && password && password_confirm) {
+                // 所有数据都不为空，可以继续处理
+                let formData = $('#myForm').serialize();
+
+                // 发送数据到后端
+                $.ajax({
+                    type: 'POST',
+                    url: '/register',
+                    data: formData,
+                    success: function (response) {
+                        let responseData = JSON.parse(response)
+                        if (responseData.status === "success") {
+                            alert("成功建立用户！");
+                            window.location.href = "/";
+                        } else {
+                            alert(responseData.message);
+                        }
+                    },
+                    error: function (error) {
+                        alert(error);
+                    }
+                });
+            } else {
+                alert("有字段未填写，请检查并填写所有必填项");
+            }
+        });
+    });
+</script>
+</body>
+
+</html>
